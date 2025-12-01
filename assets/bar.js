@@ -2,10 +2,7 @@
 var params = new URLSearchParams(window.location.search);
 
 function sendTo(url){
-    // Pobierz bazowy URL (ścieżkę do folderu, w którym znajduje się strona)
-    var basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-    // Jeśli jesteśmy w głównym folderze, basePath będzie "/", w podfolderze będzie np. "/albertkarzel/"
-    location.href = basePath + `${url}.html?` + params.toString();
+    location.href = `/${url}?` + params;
 }
 
 document.querySelectorAll(".bottom_element_grid").forEach((element) => {

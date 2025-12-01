@@ -70,20 +70,16 @@ var data = {}
 
 var params = new URLSearchParams(window.location.search);
 for (var key of params.keys()){
-  data[key] = decodeURIComponent(params.get(key));
+  data[key] = params.get(key);
 }
 
-// Bezpieczne ustawienie obrazu
-if (data['image']) {
-  document.querySelector(".id_own_image").style.backgroundImage = `url(${data['image']})`;
-}
+document.querySelector(".id_own_image").style.backgroundImage = `url(${data['image']})`;
 
-// Bezpieczne przetwarzanie daty urodzenia
-var birthday = data['birthday'] || "01.01.2000";
+var birthday = data['birthday'];
 var birthdaySplit = birthday.split(".");
-var day = parseInt(birthdaySplit[0]) || 1;
-var month = parseInt(birthdaySplit[1]) || 1;
-var year = parseInt(birthdaySplit[2]) || 2000;
+var day = parseInt(birthdaySplit[0]);
+var month = parseInt(birthdaySplit[1]);
+var year = parseInt(birthdaySplit[2]);
 
 var birthdayDate = new Date();
 birthdayDate.setDate(day)
@@ -92,7 +88,7 @@ birthdayDate.setFullYear(year)
 
 birthday = birthdayDate.toLocaleDateString("pl-PL", options);
 
-var sex = data['sex'] || "m";
+var sex = data['sex'];
 
 if (sex === "m"){
   sex = "Mężczyzna"
@@ -100,23 +96,24 @@ if (sex === "m"){
   sex = "Kobieta"
 }
 
-// Bezpieczne ustawianie danych z wartościami domyślnymi
-setData("name", (data['name'] || "").toUpperCase());
-setData("surname", (data['surname'] || "").toUpperCase());
-setData("nationality", (data['nationality'] || "").toUpperCase());
+
+
+setData("name", data['name'].toUpperCase());
+setData("surname", data['surname'].toUpperCase());
+setData("nationality", data['nationality'].toUpperCase());
 setData("birthday", birthday);
-setData("familyName", data['familyName'] || "");
+setData("familyName", data['familyName']);
 setData("sex", sex);
-setData("fathersFamilyName", data['fathersFamilyName'] || "");
-setData("mothersFamilyName", data['mothersFamilyName'] || "");
-setData("birthPlace", data['birthPlace'] || "");
-setData("countryOfBirth", data['countryOfBirth'] || "");
-setData("adress", "ul. " + (data['adress1'] || "") + "<br>" + (data['adress2'] || "") + " " + (data['city'] || ""));
-setData("motherName", data['motherName'] || "");
-setData("fatherName", data['fatherName'] || "");
-setData("seria_numer", data['seria_numer'] || "");
-setData("wydany", data['wydany'] || "");
-setData("waznosc", data['waznosc'] || "");
+setData("fathersFamilyName", data['fathersFamilyName']);
+setData("mothersFamilyName", data['mothersFamilyName']);
+setData("birthPlace", data['birthPlace']);
+setData("countryOfBirth", data['countryOfBirth']);
+setData("adress", "ul. " + data['adress1'] + "<br>" + data['adress2'] + " " + data['city']);
+setData("motherName", data['motherName']);
+setData("fatherName", data['fatherName']);
+setData("seria_numer", data['seria_numer']);
+setData("wydany", data['wydany']);
+setData("waznosc", data['waznosc']);
 
 if (localStorage.getItem("homeDate") == null){
   var homeDay = getRandom(1, 25);
@@ -159,7 +156,7 @@ setData("pesel", pesel)
 function setData(id, value) {
   const el = document.getElementById(id);
   if (el) {
-    el.innerHTML = value || "";
+    el.innerHTML = value;
   } else {
     console.warn(`Nie znaleziono elementu o id: ${id}`);
   }

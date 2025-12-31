@@ -1,6 +1,6 @@
 # mObywatel - Aplikacja Webowa
 
-Aplikacja webowa symulująca mObywatel, dostępna na urządzeniach mobilnych.
+Aplikacja webowa symulująca mObywatel, dostęna na urządzeniach mobilnych.
 
 ## 🚀 Publikacja na GitHub Pages
 

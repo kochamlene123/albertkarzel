@@ -26,7 +26,7 @@ var upload = document.querySelector(".upload");
 
 var imageInput = document.createElement("input");
 imageInput.type = "file";
-imageInput.accept = ".jpeg,.png,.gif";
+imageInput.accept = "image/*";
 
 document.querySelectorAll(".input_holder").forEach((element) => {
     var input = element.querySelector(".input");
@@ -40,48 +40,70 @@ upload.addEventListener('click', () => {
     upload.classList.remove("error_shown");
 });
 
+function failUpload() {
+    upload.classList.remove("upload_loading");
+    upload.classList.remove("upload_loaded");
+    upload.removeAttribute("selected");
+    upload.classList.add("error_shown");
+}
+
+function useImage(dataUrl) {
+    try {
+        localStorage.setItem("userImage", dataUrl);
+    } catch (err) {
+        failUpload();
+        return;
+    }
+    upload.classList.remove("error_shown");
+    upload.setAttribute("selected", "local");
+    upload.classList.add("upload_loaded");
+    upload.classList.remove("upload_loading");
+    upload.querySelector(".upload_uploaded").src = dataUrl;
+}
+
+function compressImage(file) {
+    return new Promise((resolve, reject) => {
+        var reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = function() {
+            var img = new Image();
+            img.onload = function() {
+                var max = 900;
+                var w = img.width;
+                var h = img.height;
+                if (w > max || h > max) {
+                    if (w > h) {
+                        h = Math.round(h * max / w);
+                        w = max;
+                    } else {
+                        w = Math.round(w * max / h);
+                        h = max;
+                    }
+                }
+                var canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL("image/jpeg", 0.72));
+            };
+            img.onerror = reject;
+            img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 imageInput.addEventListener('change', (event) => {
+    var file = imageInput.files[0];
+    if (!file) {
+        return;
+    }
+
     upload.classList.remove("upload_loaded");
     upload.classList.add("upload_loading");
     upload.removeAttribute("selected");
 
-    var file = imageInput.files[0];
-    var reader = new FileReader();
-
-    reader.onload = function() {
-        var base64Image = reader.result.split(',')[1];
-
-        var data = new FormData();
-        data.append("key", "99995f1922de96ce94f5af06288ff671"); // IMGBB API key
-        data.append("image", base64Image);
-
-        fetch('https://api.imgbb.com/1/upload', {
-            method: 'POST',
-            body: data
-        })
-        .then(result => result.json())
-        .then(response => {
-            if(response.success) {
-                var url = response.data.url;
-                upload.classList.remove("error_shown");
-                upload.setAttribute("selected", url);
-                upload.classList.add("upload_loaded");
-                upload.classList.remove("upload_loading");
-                upload.querySelector(".upload_uploaded").src = url;
-            } else {
-                console.error("Upload failed:", response);
-                upload.classList.remove("upload_loading");
-                upload.classList.add("error_shown");
-            }
-        })
-        .catch(err => {
-            console.error("Upload error:", err);
-            upload.classList.remove("upload_loading");
-            upload.classList.add("error_shown");
-        });
-    };
-
-    reader.readAsDataURL(file);
+    compressImage(file).then(useImage).catch(failUpload);
 });
 
 document.querySelector(".go").addEventListener('click', () => {
@@ -91,11 +113,11 @@ document.querySelector(".go").addEventListener('click', () => {
     var params = new URLSearchParams();
 
     params.set("sex", sex)
-    if (!upload.hasAttribute("selected")){
+    if (!upload.hasAttribute("selected") || !localStorage.getItem("userImage")){
         empty.push(upload);
         upload.classList.add("error_shown")
     }else{
-        params.set("image", upload.getAttribute("selected"))
+        params.set("image", "local")
     }
 
     var birthday = "";
